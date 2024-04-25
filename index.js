@@ -1,17 +1,29 @@
-const express = require('express')
-const app = express()
+const express = require('express');
+const bodyParser = require('body-parser');
+const personRoutes = require('./src/routes/personRoutes');
 
-let persons = [{
-    id: '1',
-    name: 'Sam',
-    age: '26',
-    hobbies: []    
-}] //This is your in memory database
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-app.set('db', persons)
-//TODO: Implement crud of person
+app.use(bodyParser.json());
+
+app.use('/person', personRoutes);
+
+// Error handling middleware for 404 errors (Not Found)
+app.use((req, res, next) => {
+    res.status(404).json({ error: 'Not found' });
+});
+
+// Error handling middleware for internal server errors (500)
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ error: 'Internal server error' });
+});
 
 if (require.main === module) {
-    app.listen(3000)
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    });
 }
+
 module.exports = app;
